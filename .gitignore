@@ -1,3 +1,23 @@
+# Entornos virtuales (el que creamos recién)
+.venv/
 env/
+venv/
+ENV/
+
+# Archivos de caché de Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Archivos específicos de Visual Studio Code
+.vscode/
+
+# Archivos de sistema de Linux / Ubuntu
+.DS_Store
+.directory
+
+# Archivos de distribución / paquetes
+dist/
+build/
+*.egg-info/

@@ -1,5 +1,4 @@
 import pygame
-import sys
 
 ANCHO = 800
 ALTO = 800
@@ -8,6 +7,9 @@ COLUMNAS = 40
 
 BLANCO = (255, 255, 255)
 GRIS = (128, 128, 128)
+NEGRO = (0, 0, 0)
+AZUL = (0, 0, 255)
+PURPURA = (128, 0, 128)
 
 class Nodo:
     def __init__(self, fila, columna, ancho, total_filas):
@@ -21,6 +23,27 @@ class Nodo:
     
     def dibujar(self, ventana):
         pygame.draw.rect(ventana, self.color, (self.x, self.y, self.ancho, self.ancho))
+        
+    def es_barrera(self):
+        return self.color == NEGRO
+    
+    def es_inicio(self):
+        return self.color == AZUL
+    
+    def es_fin(self):
+        return self.color == PURPURA
+    
+    def reiniciar(self):
+        self.color = BLANCO
+    
+    def hacer_inicio(self):
+        self.color = AZUL
+    
+    def hacer_barrera(self):
+        self.color = NEGRO
+    
+    def hacer_fin(self):
+        self.color = PURPURA
 
 def crear_cuadricula(filas, ancho):
     cuadricula = []
@@ -49,8 +72,22 @@ def dibujar(ventana, cuadricula, filas, ancho):
     dibujar_cuadricula(ventana, filas, ancho)
     pygame.display.update()
 
+def obtener_pos_clic(pos, filas, ancho):
+    espacio = ancho // filas
+    y, x = pos
+    fila = y // espacio
+    columna = x // espacio
+    
+    if fila < 0 or fila >= filas or columna < 0 or columna >= filas:
+        return None, None
+    
+    return fila, columna
+
 def principal(ventana, ancho):
     cuadricula = crear_cuadricula(FILAS, ancho)
+    
+    inicio = None
+    fin = None
     
     ejecutando = True
     
@@ -60,6 +97,43 @@ def principal(ventana, ancho):
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 ejecutando = False
+                
+            if pygame.mouse.get_pressed()[0]:
+                pos = pygame.mouse.get_pos()
+                fila, columna = obtener_pos_clic(pos, FILAS, ancho)
+                
+                if fila is not None and columna is not None:
+                    nodo = cuadricula[fila][columna]
+                    
+                    if not inicio and nodo != fin:
+                        inicio = nodo
+                        inicio.hacer_inicio()
+                    
+                    elif not fin and nodo != inicio:
+                        fin = nodo
+                        fin.hacer_fin()
+                    
+                    elif nodo != fin and nodo != inicio:
+                        nodo.hacer_barrera()
+            
+            elif pygame.mouse.get_pressed()[2]:
+                pos = pygame.mouse.get_pos()
+                fila, columna = obtener_pos_clic(pos, FILAS, ancho)
+                
+                if fila is not None and columna is not None:
+                    nodo = cuadricula[fila][columna]
+                    nodo.reiniciar()
+                    
+                    if nodo == inicio:
+                        inicio = None
+                    elif nodo == fin:
+                        fin = None
+            
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_c:
+                    inicio = None
+                    fin = None
+                    cuadricula = crear_cuadricula(FILAS, ancho)
     
     pygame.quit()
 
