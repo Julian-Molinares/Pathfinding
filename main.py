@@ -240,6 +240,61 @@ def dfs(dibujar, cuadricula, inicio, fin):
     
     return False
 
+def heuristica(p1, p2):
+    x1, y1 = p1
+    x2, y2 = p2
+    return abs(x1 - x2) + abs(y1 - y2)
+
+def a_estrella(dibujar, cuadricula, inicio, fin):
+    contador = 0
+    conjunto_abierto = []
+    heapq.heappush(conjunto_abierto, (0, contador, inicio))
+    vino_de = {}
+    
+    puntaje_g = {nodo: float("inf") for fila in cuadricula for nodo in fila}
+    puntaje_g[inicio] = 0
+    
+    puntaje_f = {nodo: float("inf") for fila in cuadricula for nodo in fila}
+    puntaje_f[inicio] = heuristica(inicio.obtener_pos(), fin.obtener_pos())
+    
+    hash_conjunto_abierto = {inicio}
+    
+    while conjunto_abierto:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        
+        actual = heapq.heappop(conjunto_abierto)[2]
+        hash_conjunto_abierto.remove(actual)
+        
+        if actual == fin:
+            reconstruir_camino(vino_de, fin, dibujar)
+            fin.hacer_fin()
+            inicio.hacer_inicio()
+            return True
+        
+        for vecino in actual.vecinos:
+            puntaje_g_temporal = puntaje_g[actual] + 1
+            
+            if puntaje_g_temporal < puntaje_g[vecino]:
+                vino_de[vecino] = actual
+                puntaje_g[vecino] = puntaje_g_temporal
+                puntaje_f[vecino] = puntaje_g_temporal + heuristica(vecino.obtener_pos(), fin.obtener_pos())
+                
+                if vecino not in hash_conjunto_abierto:
+                    contador += 1
+                    heapq.heappush(conjunto_abierto, (puntaje_f[vecino], contador, vecino))
+                    hash_conjunto_abierto.add(vecino)
+                    vecino.hacer_abierto()
+        
+        dibujar()
+        
+        if actual != inicio:
+            actual.hacer_cerrado()
+    
+    return False
+
 def principal(ventana, ancho):
     cuadricula = crear_cuadricula(FILAS, ancho)
     
@@ -309,6 +364,12 @@ def principal(ventana, ancho):
                         for nodo in fila:
                             nodo.actualizar_vecinos(cuadricula)
                     dfs(lambda: dibujar(ventana, cuadricula, FILAS, ancho), cuadricula, inicio, fin)
+                
+                if evento.key == pygame.K_a and inicio and fin:
+                    for fila in cuadricula:
+                        for nodo in fila:
+                            nodo.actualizar_vecinos(cuadricula)
+                    a_estrella(lambda: dibujar(ventana, cuadricula, FILAS, ancho), cuadricula, inicio, fin)
     
     pygame.quit()
 
