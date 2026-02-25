@@ -1,4 +1,7 @@
 import pygame
+import sys
+from collections import deque
+import heapq
 
 ANCHO = 800
 ALTO = 800
@@ -10,6 +13,9 @@ GRIS = (128, 128, 128)
 NEGRO = (0, 0, 0)
 AZUL = (0, 0, 255)
 PURPURA = (128, 0, 128)
+VERDE = (0, 255, 0)
+ROJO = (255, 0, 0)
+AMARILLO = (255, 255, 0)
 
 class Nodo:
     def __init__(self, fila, columna, ancho, total_filas):
@@ -18,6 +24,7 @@ class Nodo:
         self.x = self.fila * ancho
         self.y = self.columna * ancho
         self.color = BLANCO
+        self.vecinos = []
         self.ancho = ancho
         self.total_filas = total_filas
     
@@ -44,6 +51,36 @@ class Nodo:
     
     def hacer_fin(self):
         self.color = PURPURA
+        
+    def obtener_pos(self):
+        return self.fila, self.columna
+    
+    def hacer_cerrado(self):
+        self.color = ROJO
+        
+    def hacer_abierto(self):
+        self.color = VERDE
+        
+    def hacer_camino(self):
+        self.color = AMARILLO
+        
+    def actualizar_vecinos(self, cuadricula):
+        self.vecinos = []
+        
+        if self.fila < self.total_filas - 1 and not cuadricula[self.fila + 1][self.columna].es_barrera():
+            self.vecinos.append(cuadricula[self.fila + 1][self.columna])
+        
+        if self.fila > 0 and not cuadricula[self.fila - 1][self.columna].es_barrera():
+            self.vecinos.append(cuadricula[self.fila - 1][self.columna])
+        
+        if self.columna < self.total_filas - 1 and not cuadricula[self.fila][self.columna + 1].es_barrera():    
+            self.vecinos.append(cuadricula[self.fila][self.columna + 1])
+        
+        if self.columna > 0 and not cuadricula[self.fila][self.columna - 1].es_barrera():
+            self.vecinos.append(cuadricula[self.fila][self.columna - 1])
+    
+    def __lt__(self, otro):
+        return False
 
 def crear_cuadricula(filas, ancho):
     cuadricula = []
@@ -82,6 +119,126 @@ def obtener_pos_clic(pos, filas, ancho):
         return None, None
     
     return fila, columna
+
+def reconstruir_camino(vino_de, actual, dibujar):
+    while actual in vino_de:
+        actual = vino_de[actual]
+        if not actual.es_inicio():
+            actual.hacer_camino()
+        dibujar()
+
+def dijkstra(dibujar, cuadricula, inicio, fin):
+    contador = 0
+    conjunto_abierto = []
+    heapq.heappush(conjunto_abierto, (0, contador, inicio))
+    vino_de = {}
+    
+    distancia = {nodo: float("inf") for fila in cuadricula for nodo in fila}
+    distancia[inicio] = 0
+    
+    hash_conjunto_abierto = {inicio}
+    
+    while conjunto_abierto:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        
+        actual = heapq.heappop(conjunto_abierto)[2]
+        hash_conjunto_abierto.remove(actual)
+        
+        if actual == fin:
+            reconstruir_camino(vino_de, fin, dibujar)
+            fin.hacer_fin()
+            inicio.hacer_inicio()
+            return True
+        
+        for vecino in actual.vecinos:
+            distancia_temporal = distancia[actual] + 1
+            
+            if distancia_temporal < distancia[vecino]:
+                vino_de[vecino] = actual
+                distancia[vecino] = distancia_temporal
+                
+                if vecino not in hash_conjunto_abierto:
+                    contador += 1
+                    heapq.heappush(conjunto_abierto, (distancia[vecino], contador, vecino))
+                    hash_conjunto_abierto.add(vecino)
+                    vecino.hacer_abierto()
+        
+        dibujar()
+        
+        if actual != inicio:
+            actual.hacer_cerrado()
+    
+    return False
+
+def bfs(dibujar, cuadricula, inicio, fin):
+    cola = deque([inicio])
+    vino_de = {}
+    visitados = {inicio}
+    
+    while cola:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        
+        actual = cola.popleft()
+        
+        if actual == fin:
+            reconstruir_camino(vino_de, fin, dibujar)
+            fin.hacer_fin()
+            inicio.hacer_inicio()
+            return True
+        
+        for vecino in actual.vecinos:
+            if vecino not in visitados:
+                visitados.add(vecino)
+                vino_de[vecino] = actual
+                cola.append(vecino)
+                vecino.hacer_abierto()
+        
+        dibujar()
+        
+        if actual != inicio:
+            actual.hacer_cerrado()
+    
+    return False
+
+def dfs(dibujar, cuadricula, inicio, fin):
+    pila = [inicio]
+    vino_de = {}
+    visitados = {inicio}
+    
+    while pila:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        
+        actual = pila.pop()
+        
+        if actual == fin:
+            reconstruir_camino(vino_de, fin, dibujar)
+            fin.hacer_fin()
+            inicio.hacer_inicio()
+            return True
+        
+        for vecino in actual.vecinos:
+            if vecino not in visitados:
+                visitados.add(vecino)
+                vino_de[vecino] = actual
+                pila.append(vecino)
+                if vecino != fin:
+                    vecino.hacer_abierto()
+        
+        dibujar()
+        
+        if actual != inicio:
+            actual.hacer_cerrado()
+    
+    return False
 
 def principal(ventana, ancho):
     cuadricula = crear_cuadricula(FILAS, ancho)
@@ -134,6 +291,24 @@ def principal(ventana, ancho):
                     inicio = None
                     fin = None
                     cuadricula = crear_cuadricula(FILAS, ancho)
+                
+                if evento.key == pygame.K_d and inicio and fin:
+                    for fila in cuadricula:
+                        for nodo in fila:
+                            nodo.actualizar_vecinos(cuadricula)
+                    dijkstra(lambda: dibujar(ventana, cuadricula, FILAS, ancho), cuadricula, inicio, fin)
+                    
+                if evento.key == pygame.K_b and inicio and fin:
+                    for fila in cuadricula:
+                        for nodo in fila:
+                            nodo.actualizar_vecinos(cuadricula)
+                    bfs(lambda: dibujar(ventana, cuadricula, FILAS, ancho), cuadricula, inicio, fin)
+                    
+                if evento.key == pygame.K_s and inicio and fin:
+                    for fila in cuadricula:
+                        for nodo in fila:
+                            nodo.actualizar_vecinos(cuadricula)
+                    dfs(lambda: dibujar(ventana, cuadricula, FILAS, ancho), cuadricula, inicio, fin)
     
     pygame.quit()
 
