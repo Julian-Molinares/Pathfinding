@@ -295,6 +295,12 @@ def a_estrella(dibujar, cuadricula, inicio, fin):
     
     return False
 
+def limpiar_cuadricula(cuadricula):
+    for fila in cuadricula:
+        for nodo in fila:
+            if nodo.color in [VERDE, ROJO, AMARILLO]:
+                nodo.reiniciar()
+
 def principal(ventana, ancho):
     cuadricula = crear_cuadricula(FILAS, ancho)
     
@@ -348,24 +354,28 @@ def principal(ventana, ancho):
                     cuadricula = crear_cuadricula(FILAS, ancho)
                 
                 if evento.key == pygame.K_d and inicio and fin:
+                    limpiar_cuadricula(cuadricula)
                     for fila in cuadricula:
                         for nodo in fila:
                             nodo.actualizar_vecinos(cuadricula)
                     dijkstra(lambda: dibujar(ventana, cuadricula, FILAS, ancho), cuadricula, inicio, fin)
                     
                 if evento.key == pygame.K_b and inicio and fin:
+                    limpiar_cuadricula(cuadricula)
                     for fila in cuadricula:
                         for nodo in fila:
                             nodo.actualizar_vecinos(cuadricula)
                     bfs(lambda: dibujar(ventana, cuadricula, FILAS, ancho), cuadricula, inicio, fin)
                     
                 if evento.key == pygame.K_s and inicio and fin:
+                    limpiar_cuadricula(cuadricula)
                     for fila in cuadricula:
                         for nodo in fila:
                             nodo.actualizar_vecinos(cuadricula)
                     dfs(lambda: dibujar(ventana, cuadricula, FILAS, ancho), cuadricula, inicio, fin)
                 
                 if evento.key == pygame.K_a and inicio and fin:
+                    limpiar_cuadricula(cuadricula)
                     for fila in cuadricula:
                         for nodo in fila:
                             nodo.actualizar_vecinos(cuadricula)
