@@ -1,0 +1,34 @@
+from collections import deque
+from .pathfinder import Pathfinder
+
+
+class BFS(Pathfinder):
+    def ejecutar(self):
+        cola = deque([self.inicio])
+        vino_de = {}
+        visitados = {self.inicio}
+        
+        while cola:
+            self.verificar_eventos()
+            
+            actual = cola.popleft()
+            
+            if actual == self.fin:
+                self.reconstruir_camino(vino_de, self.fin)
+                self.fin.hacer_fin()
+                self.inicio.hacer_inicio()
+                return True
+            
+            for vecino in actual.vecinos:
+                if vecino not in visitados:
+                    visitados.add(vecino)
+                    vino_de[vecino] = actual
+                    cola.append(vecino)
+                    vecino.hacer_abierto()
+            
+            self.dibujar_callback()
+            
+            if actual != self.inicio:
+                actual.hacer_cerrado()
+        
+        return False

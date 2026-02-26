@@ -1,0 +1,15 @@
+# Dimensiones de la ventana
+ANCHO = 600
+ALTO = 600
+FILAS = 40
+COLUMNAS = 40
+
+# Colores a utilizar
+BLANCO = (255, 255, 255)
+GRIS = (128, 128, 128)
+NEGRO = (0, 0, 0)
+AZUL = (0, 0, 255)
+PURPURA = (128, 0, 128)
+VERDE = (0, 255, 0)
+ROJO = (255, 0, 0)
+AMARILLO = (255, 255, 0)
