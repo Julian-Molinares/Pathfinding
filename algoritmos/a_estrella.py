@@ -36,7 +36,7 @@ class AEstrella(Pathfinder):
                 return True
             
             for vecino in actual.vecinos:
-                puntaje_g_temporal = puntaje_g[actual] + 1
+                puntaje_g_temporal = puntaje_g[actual] + vecino.obtener_costo()
                 
                 if puntaje_g_temporal < puntaje_g[vecino]:
                     vino_de[vecino] = actual
@@ -47,11 +47,13 @@ class AEstrella(Pathfinder):
                         contador += 1
                         heapq.heappush(conjunto_abierto, (puntaje_f[vecino], contador, vecino))
                         hash_conjunto_abierto.add(vecino)
-                        vecino.hacer_abierto()
+                        if not vecino.es_arena() and not vecino.es_pantano():
+                            vecino.hacer_abierto()
             
             self.dibujar_callback()
             
             if actual != self.inicio:
-                actual.hacer_cerrado()
+                if not actual.es_arena() and not actual.es_pantano():
+                    actual.hacer_cerrado()
         
         return False

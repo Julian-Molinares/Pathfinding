@@ -1,5 +1,5 @@
 import pygame
-from configuracion import BLANCO, NEGRO, AZUL, PURPURA, ROJO, VERDE, AMARILLO
+from configuracion import BLANCO, NEGRO, AZUL, PURPURA, ROJO, VERDE, AMARILLO, AMARILLO_ARENOSO, VERDE_PANTANOSO
 
 
 class Nodo:
@@ -9,15 +9,23 @@ class Nodo:
         self.x = self.fila * ancho
         self.y = self.columna * ancho
         self.color = BLANCO
+        self.colorAnterior = BLANCO
         self.vecinos = []
         self.ancho = ancho
         self.total_filas = total_filas
+        self.tipo_terreno = "normal"
     
     def dibujar(self, ventana):
         pygame.draw.rect(ventana, self.color, (self.x, self.y, self.ancho, self.ancho))
         
     def es_barrera(self):
         return self.color == NEGRO
+    
+    def es_arena(self):
+        return self.color == AMARILLO_ARENOSO
+    
+    def es_pantano(self):
+        return self.color == VERDE_PANTANOSO
     
     def es_inicio(self):
         return self.color == AZUL
@@ -34,6 +42,14 @@ class Nodo:
     def hacer_barrera(self):
         self.color = NEGRO
     
+    def hacer_arena(self):
+        self.color = AMARILLO_ARENOSO
+        self.tipo_terreno = "arena"
+    
+    def hacer_pantano(self):
+        self.color = VERDE_PANTANOSO
+        self.tipo_terreno = "pantano"
+    
     def hacer_fin(self):
         self.color = PURPURA
         
@@ -41,12 +57,18 @@ class Nodo:
         return self.fila, self.columna
     
     def hacer_cerrado(self):
+        if self.es_arena() or self.es_pantano():
+            self.colorAnterior = self.color
         self.color = ROJO
         
     def hacer_abierto(self):
+        if self.es_arena() or self.es_pantano():
+            self.colorAnterior = self.color
         self.color = VERDE
         
     def hacer_camino(self):
+        if self.es_arena() or self.es_pantano():
+            self.colorAnterior = self.color
         self.color = AMARILLO
         
     def actualizar_vecinos(self, cuadricula):
@@ -63,6 +85,14 @@ class Nodo:
         
         if self.columna > 0 and not cuadricula[self.fila][self.columna - 1].es_barrera():
             self.vecinos.append(cuadricula[self.fila][self.columna - 1])
+    
+    def obtener_costo(self):
+        if self.es_arena():
+            return 2
+        elif self.es_pantano():
+            return 4
+        else:
+            return 1
     
     def __lt__(self, otro):
         return False

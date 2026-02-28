@@ -27,7 +27,7 @@ class Dijkstra(Pathfinder):
                 return True
             
             for vecino in actual.vecinos:
-                distancia_temporal = distancia[actual] + 1
+                distancia_temporal = distancia[actual] + vecino.obtener_costo()
                 
                 if distancia_temporal < distancia[vecino]:
                     vino_de[vecino] = actual
@@ -38,10 +38,13 @@ class Dijkstra(Pathfinder):
                         heapq.heappush(conjunto_abierto, (distancia[vecino], contador, vecino))
                         hash_conjunto_abierto.add(vecino)
                         vecino.hacer_abierto()
+                        if not vecino.es_arena() and not vecino.es_pantano():
+                            vecino.hacer_abierto()
             
             self.dibujar_callback()
             
             if actual != self.inicio:
-                actual.hacer_cerrado()
+                if not actual.es_arena() and not actual.es_pantano():
+                    actual.hacer_cerrado()
         
         return False

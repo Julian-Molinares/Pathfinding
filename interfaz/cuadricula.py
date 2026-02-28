@@ -61,4 +61,8 @@ class Cuadricula:
         for fila in self.cuadricula:
             for nodo in fila:
                 if nodo.color in [VERDE, ROJO, AMARILLO]:
-                    nodo.reiniciar()
+                    if nodo.colorAnterior != BLANCO:
+                        nodo.color = nodo.colorAnterior
+                        nodo.colorAnterior = BLANCO
+                    else:
+                        nodo.reiniciar()

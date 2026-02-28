@@ -1,6 +1,7 @@
 import pygame
 from interfaz.cuadricula import Cuadricula
 from algoritmos import Dijkstra, BFS, DFS, AEstrella
+from configuracion import BLANCO, NEGRO
 
 
 class Visualizador:
@@ -16,7 +17,7 @@ class Visualizador:
     def dibujar(self):
         self.cuadricula.dibujar(self.ventana)
     
-    def manejar_clic_izquierdo(self, pos):
+    def manejar_clic_izquierdo(self, pos, tecla_presionada):
         fila, columna = self.cuadricula.obtener_pos_clic(pos)
         
         if fila is not None and columna is not None:
@@ -31,7 +32,12 @@ class Visualizador:
                 self.fin.hacer_fin()
             
             elif nodo != self.fin and nodo != self.inicio:
-                nodo.hacer_barrera()
+                if tecla_presionada[pygame.K_n]:
+                    nodo.hacer_arena()
+                elif tecla_presionada[pygame.K_m]:
+                    nodo.hacer_pantano()
+                else:
+                    nodo.hacer_barrera()
     
     def manejar_clic_derecho(self, pos):
         fila, columna = self.cuadricula.obtener_pos_clic(pos)
@@ -60,10 +66,12 @@ class Visualizador:
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 self.ejecutando = False
+                
+            tecla = pygame.key.get_pressed()
             
             if pygame.mouse.get_pressed()[0]:
                 pos = pygame.mouse.get_pos()
-                self.manejar_clic_izquierdo(pos)
+                self.manejar_clic_izquierdo(pos, tecla)
             
             elif pygame.mouse.get_pressed()[2]:
                 pos = pygame.mouse.get_pos()
