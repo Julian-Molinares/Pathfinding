@@ -27,6 +27,7 @@ class DFS(Pathfinder):
                         vecino.hacer_abierto()
             
             self.dibujar_callback()
+            self.delay_visualizacion()
             
             if actual != self.inicio:
                 actual.hacer_cerrado()

@@ -47,10 +47,11 @@ class AEstrella(Pathfinder):
                         contador += 1
                         heapq.heappush(conjunto_abierto, (puntaje_f[vecino], contador, vecino))
                         hash_conjunto_abierto.add(vecino)
-                        if not vecino.es_arena() and not vecino.es_pantano():
+                        if not vecino.es_arena() and not vecino.es_pantano() and vecino != self.fin:
                             vecino.hacer_abierto()
             
             self.dibujar_callback()
+            self.delay_visualizacion()
             
             if actual != self.inicio:
                 if not actual.es_arena() and not actual.es_pantano():

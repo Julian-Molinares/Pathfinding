@@ -24,9 +24,11 @@ class BFS(Pathfinder):
                     visitados.add(vecino)
                     vino_de[vecino] = actual
                     cola.append(vecino)
-                    vecino.hacer_abierto()
+                    if vecino != self.fin:
+                        vecino.hacer_abierto()
             
             self.dibujar_callback()
+            self.delay_visualizacion()
             
             if actual != self.inicio:
                 actual.hacer_cerrado()

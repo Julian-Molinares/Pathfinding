@@ -37,11 +37,11 @@ class Dijkstra(Pathfinder):
                         contador += 1
                         heapq.heappush(conjunto_abierto, (distancia[vecino], contador, vecino))
                         hash_conjunto_abierto.add(vecino)
-                        vecino.hacer_abierto()
-                        if not vecino.es_arena() and not vecino.es_pantano():
+                        if not vecino.es_arena() and not vecino.es_pantano() and vecino != self.fin:
                             vecino.hacer_abierto()
             
             self.dibujar_callback()
+            self.delay_visualizacion()
             
             if actual != self.inicio:
                 if not actual.es_arena() and not actual.es_pantano():
