@@ -1,4 +1,4 @@
-# Entornos virtuales (el que creamos recién)
+# Entornos virtuales
 .venv/
 env/
 venv/
@@ -13,7 +13,7 @@ __pycache__/
 # Archivos específicos de Visual Studio Code
 .vscode/
 
-# Archivos de sistema de Linux / Ubuntu
+# Archivos de sistema de Linux / macOS
 .DS_Store
 .directory
 
