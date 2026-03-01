@@ -1,8 +1,8 @@
 import pygame
+import tkinter as tk
+from tkinter import messagebox
 from interfaz.cuadricula import Cuadricula
 from algoritmos import Dijkstra, BFS, DFS, AEstrella
-from configuracion import BLANCO, NEGRO
-
 
 class Visualizador:
     def __init__(self, ventana, ancho, filas):
@@ -60,7 +60,17 @@ class Visualizador:
                 self.fin, 
                 self.dibujar
             )
-            algoritmo.ejecutar()
+            resultado = algoritmo.ejecutar()
+            
+            mensaje = tk.Tk()
+            mensaje.withdraw()
+            
+            if resultado:
+                messagebox.showinfo("Resultado", "¡Ruta encontrada!")
+            else:
+                messagebox.showwarning("Resultado", "No se encontró una ruta.")
+            
+            mensaje.destroy()
     
     def manejar_eventos(self):
         for evento in pygame.event.get():
